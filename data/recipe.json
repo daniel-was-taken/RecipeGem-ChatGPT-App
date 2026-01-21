@@ -25,10 +25,7 @@
         "The sauce will be done once the spaghetti are.",
         "Feel free to add some cheese on top of the finished dish."
       ],
-      "isGlutenFree": false,
-      "isVegan": true,
-      "isVegetarian": true,
-      "isLactoseFree": true
+      "dietaryLabels": ["Vegan", "Vegetarian", "Lactose-Free"]
     },
     {
       "id": "m2",
@@ -50,10 +47,7 @@
         "Layer ham, the pineapple and cheese on the white bread",
         "Bake the toast for round about 10 minutes in the oven at 200°C"
       ],
-      "isGlutenFree": false,
-      "isVegan": false,
-      "isVegetarian": false,
-      "isLactoseFree": false
+      "dietaryLabels": ["Non-Vegetarian"]
     },
     {
       "id": "m3",
@@ -78,10 +72,7 @@
         "Bruch buns with ketchup",
         "Serve burger with tomato, cucumber and onion"
       ],
-      "isGlutenFree": false,
-      "isVegan": false,
-      "isVegetarian": false,
-      "isLactoseFree": true
+      "dietaryLabels": ["Lactose-Free"]
     },
     {
       "id": "m4",
@@ -102,7 +93,7 @@
         "Lemon Slices"
       ],
       "steps": [
-        "Tenderize the veal to about 2–4mm, and salt on both sides.",
+        "Tenderize the veal to about 2-4mm, and salt on both sides.",
         "On a flat plate, stir the eggs briefly with a fork.",
         "Lightly coat the cutlets in flour then dip into the egg, and finally, coat in breadcrumbs.",
         "Heat the butter and oil in a large pan (allow the fat to get very hot) and fry the schnitzels until golden brown on both sides.",
@@ -110,10 +101,7 @@
         "Remove, and drain on kitchen paper. Fry the parsley in the remaining oil and drain.",
         "Place the schnitzels on awarmed plate and serve garnishedwith parsley and slices of lemon."
       ],
-      "isGlutenFree": false,
-      "isVegan": false,
-      "isVegetarian": false,
-      "isLactoseFree": false
+      "dietaryLabels": ["Non-Vegetarian"]
     },
     {
       "id": "m5",
@@ -141,10 +129,7 @@
         "Prepare the salad",
         "Add salmon cubes and dressing"
       ],
-      "isGlutenFree": true,
-      "isVegan": false,
-      "isVegetarian": true,
-      "isLactoseFree": true
+      "dietaryLabels": ["Gluten-Free", "Vegetarian", "Lactose-Free"]
     },
     {
       "id": "m6",
@@ -173,10 +158,7 @@
         "Cool down again for at least 4 hours",
         "Serve with orange peel"
       ],
-      "isGlutenFree": true,
-      "isVegan": false,
-      "isVegetarian": true,
-      "isLactoseFree": false
+      "dietaryLabels": ["Gluten-Free", "Vegetarian"]
     },
     {
       "id": "m7",
@@ -201,10 +183,7 @@
         "Heat a lightly oiled griddle or frying pan over medium high heat.",
         "Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake. Brown on both sides and serve hot."
       ],
-      "isGlutenFree": true,
-      "isVegan": false,
-      "isVegetarian": true,
-      "isLactoseFree": false
+      "dietaryLabels": ["Gluten-Free", "Vegetarian"]
     },
     {
       "id": "m8",
@@ -231,10 +210,7 @@
         "Add coconut milk",
         "Serve with rice"
       ],
-      "isGlutenFree": true,
-      "isVegan": false,
-      "isVegetarian": false,
-      "isLactoseFree": true
+      "dietaryLabels": ["Gluten-Free", "Lactose-Free"]
     },
     {
       "id": "m9",
@@ -277,10 +253,7 @@
         "Stop mixing after the egg white disappears. Divide mixture between 2 prepared ramekins. Place ramekins on prepared baking sheet.",
         "Bake in preheated oven until scuffles are puffed and have risen above the top of the rims, 12 to 15 minutes."
       ],
-      "isGlutenFree": true,
-      "isVegan": false,
-      "isVegetarian": true,
-      "isLactoseFree": false
+      "dietaryLabels": ["Gluten-Free", "Vegetarian"]
     },
     {
       "id": "m10",
@@ -306,10 +279,7 @@
         "Mix with asparagus, salad and dressing",
         "Serve with Baguette"
       ],
-      "isGlutenFree": true,
-      "isVegan": true,
-      "isVegetarian": true,
-      "isLactoseFree": true
+      "dietaryLabels": ["Gluten-Free", "Vegan", "Vegetarian", "Lactose-Free"]
     }
   ]
 }
