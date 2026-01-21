@@ -40,3 +40,5 @@ __pycache__/
 
 SETUP.txt
 example/
+web/src/App.css
+web/src/App.tsx
