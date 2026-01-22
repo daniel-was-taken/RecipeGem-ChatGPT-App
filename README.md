@@ -6,8 +6,7 @@ RecipeGem is a custom ChatGPT app for exploring recipes. It uses a JSON dataset 
 ## Demo
 
 
-
-
+https://github.com/user-attachments/assets/89c1db1e-d224-48dd-a990-fa57d8cb2f97
 
 
 ## Project Structure
