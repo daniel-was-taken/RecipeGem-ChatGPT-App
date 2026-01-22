@@ -29,7 +29,7 @@
     },
     {
       "id": "m2",
-      "cuisine": ["Quick & Easy"],
+      "cuisine": ["Quick & Easy", "Breakfast"],
       "title": "Toast Hawaii",
       "affordability": "Affordable",
       "complexity": "Simple",
@@ -51,7 +51,7 @@
     },
     {
       "id": "m3",
-      "cuisine": ["Quick & Easy", "Hamburgers"],
+      "cuisine": ["Quick & Easy", "Hamburgers", "Breakfast"],
       "title": "Classic Hamburger",
       "affordability": "Pricey",
       "complexity": "Simple",

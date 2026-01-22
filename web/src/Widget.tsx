@@ -54,7 +54,7 @@ export function Widget() {
 
   const results: Recipe[] = toolOutput.results ?? [];
   const selected: Recipe | null =
-    (toolOutput.selected as Recipe | null | undefined) ??
+    (toolOutput.selected) ??
     (state.selected_id ? results.find((s) => s.id === state.selected_id) ?? null : null);
 
   const canCallTool = typeof window.openai?.callTool === "function";
@@ -160,11 +160,7 @@ export function Widget() {
         <div className="rounded-2xl border border-default bg-surface p-3 shadow-sm">
           <h3 className="heading-lg">Details</h3>
           <div className="mt-3">
-            {!selected ? (
-              <div className="text-sm text-secondary">
-                Select a recipe to view details.
-              </div>
-            ) : (
+            {selected ? (
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -187,26 +183,27 @@ export function Widget() {
                 </div>
                 <div className="mt-3 flex gap-2">
                   <Button
-                  className="flex-1"
-                  variant="soft"
-                  color="secondary"
-                  onClick={() => window.openai?.sendFollowUpMessage?.({ prompt: `Compare "${selected.title}" to the other options in terms of ingredients, affordability, and complexity.` })}
-                  disabled={!window.openai?.sendFollowUpMessage}
-                  
-                >
-                  Ask ChatGPT to compare
-                </Button>
-                <Button
-                  className="flex-1"
-                  variant="soft"
-                  color="info"
-                  onClick={() => {}}   
-                    
-                >
-                  Learn more
-                </Button>
-               </div>    
-
+                    className="flex-1"
+                    variant="soft"
+                    color="secondary"
+                    onClick={() => window.openai?.sendFollowUpMessage?.({ prompt: `Compare "${selected.title}" to the other options in terms of ingredients, affordability, duration and complexity.` })}
+                    disabled={!window.openai?.sendFollowUpMessage}
+                  >
+                    Ask ChatGPT to compare
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    variant="soft"
+                    color="info"
+                    onClick={() => { }}
+                  >
+                    Learn more
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-secondary">
+                Select a recipe to view details.
               </div>
             )}
           </div>
