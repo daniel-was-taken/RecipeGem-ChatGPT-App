@@ -71,7 +71,7 @@ def recipe_widget() -> ResourceResult:
 @mcp.tool(
   name="explore_recipe",
   description=(
-    "Browse recipes from mock data by cuisine, title, optional complexity filter, sort, and optional selected_id.\n"
+    "Browse recipes from JSON by cuisine\n"
     "Use this when the user wants to explore recipes by cuisine and see an interactive list."
   ),
   annotations={
@@ -96,6 +96,7 @@ def explore_recipe(
   selected_id: Optional[str] = None,
 ) -> ToolResult:
   data = load_recipe()
+  
   recipes = data.get("meals", [])
 
   # Norimalisation of input
@@ -103,7 +104,14 @@ def explore_recipe(
   print("Cuisine filter:", cuisine)
   print("Normalized cuisine:", cuisine_norm)
   
-  filtered = [r for r in recipes if any(c.strip().lower().replace(" & ", " and ") in cuisine_norm for c in r["cuisine"])]
+  if cuisine_norm:
+    filtered = [
+      r for r in recipes if any(
+        c.strip().lower().replace(" & ", " and ") in cuisine_norm for c in r["cuisine"]
+      )
+    ]
+  else:
+    filtered = list(recipes)
 
   filtered.sort(key=lambda s: s.get("duration", 0), reverse=False)
 
@@ -113,7 +121,7 @@ def explore_recipe(
       if s["id"] == selected_id:
         selected = s
         break
-
+      
   structured = {
     "cuisine": cuisine,
     "results": filtered,
@@ -122,8 +130,9 @@ def explore_recipe(
   }
   
 
+  cuisine_label = ", ".join(cuisine) if cuisine else "all cuisines"
   return ToolResult(
-    content=[TextContent(type="text", text=f"Found {len(filtered)} recipes in {', '.join(cuisine)}.")],
+    content=[TextContent(type="text", text=f"Found {len(filtered)} recipes in {cuisine_label}.")],
     structured_content=structured,
     meta={
       "openai/outputTemplate": WIDGET_URI,

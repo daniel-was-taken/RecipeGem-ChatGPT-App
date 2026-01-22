@@ -20,6 +20,7 @@ export type Recipe = {
   dietaryLabels: string[];
 }
 
+
 type ToolOutput = {
   cuisine: string[];
   results: Recipe[];
@@ -34,6 +35,11 @@ type WidgetState = {
   selected_id?: string | null;
 };
 
+
+function normalizeCuisineList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((x) => String(x).trim()).filter(Boolean);
+}
 
 export function Widget() {
   const toolInput = useToolInput() ?? {};
@@ -60,9 +66,10 @@ export function Widget() {
   const canCallTool = typeof window.openai?.callTool === "function";
 
   const header = useMemo(() => {
-    const cuisineArr = toolOutput.cuisine ?? [];
+    const cuisineArr = normalizeCuisineList(toolOutput.cuisine).length ? normalizeCuisineList(toolOutput.cuisine) : normalizeCuisineList(state.cuisine);
+
     return cuisineArr.length ? `Recipes in ${cuisineArr.join(", ")}` : "RecipeGem";
-  }, [toolOutput.cuisine]);
+  }, [toolOutput.cuisine, state.cuisine]);
 
 
   async function selectRecipe(id: string) {
@@ -93,6 +100,8 @@ export function Widget() {
         </div>
         <Badge color="info">{results.length} results</Badge>
       </div>
+
+      
 
       {/* Results + Details */}
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -127,7 +136,7 @@ export function Widget() {
                           </div>
 
                           <div className="font-medium mt-2 flex items-center justify-between">
-                            {recipe.title}
+                            <span className="truncate">{recipe.title}</span>
                             <Badge color={recipe.duration >= 10 ? "success" : "info"}>
                               <Clock /> {recipe.duration} mins
                             </Badge>
