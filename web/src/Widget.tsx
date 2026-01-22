@@ -6,8 +6,6 @@ import { Markdown } from "@openai/apps-sdk-ui/components/Markdown"
 import { useToolInput, useToolOutput, useWidgetState } from "./openai";
 import { Image } from "@openai/apps-sdk-ui/components/Image";
 import useEmblaCarousel from 'embla-carousel-react';
-// import { ArrowLeft, ArrowRight } from "lucide-react";
-// import RecipeCard from "./RecipeCard";
 
 export type Recipe = {
   id: string;
@@ -26,13 +24,12 @@ type ToolOutput = {
   cuisine: string[];
   results: Recipe[];
   selected?: Recipe | null;
-  applied_filters: { min_duration?: number; sort?: "duration" | "complexity" };
+  applied_filters: { sort?: "duration" | "complexity" };
 };
 
 
 type WidgetState = {
   cuisine?: string;
-  min_duration?: number;
   sort?: "duration" | "complexity";
   selected_id?: string | null;
 };
@@ -44,7 +41,6 @@ export function Widget() {
 
   const [state, setState] = useWidgetState<WidgetState>(() => ({
     cuisine: toolInput.cuisine,
-    min_duration: toolInput.min_duration,
     sort: toolInput.sort,
     selected_id: null,
   }));
@@ -71,7 +67,7 @@ export function Widget() {
 
   async function selectRecipe(id: string) {
     const cuisineList = toolOutput.cuisine ??
-  (state.cuisine ? state.cuisine.split(",").map(s => s.trim()).filter(Boolean) : []);
+      (state.cuisine ? state.cuisine.split(",").map(s => s.trim()).filter(Boolean) : []);
 
 
     setState({ ...state, selected_id: id });
@@ -79,7 +75,6 @@ export function Widget() {
     if (canCallTool) {
       await window.openai.callTool!("explore_recipe", {
         cuisine: cuisineList,
-        min_duration: state.min_duration,
         sort: state.sort,
         selected_id: id,
       });
@@ -93,7 +88,7 @@ export function Widget() {
           <p className="text-secondary text-sm">ChatGPT App Widget</p>
           <h2 className="heading-lg">{header}</h2>
           <p className="text-secondary text-sm mt-1">
-            Mock data • component-initiated tool calls
+            Data used from RecipeApp - https://github.com/daniel-was-taken/Recipe-App-using-Flutter
           </p>
         </div>
         <Badge color="info">{results.length} results</Badge>
@@ -127,7 +122,7 @@ export function Widget() {
                             <Image
                               src={recipe.imageUrl}
                               alt={recipe.title}
-                              className="w-full aspect-square rounded-2xl object-cover ring ring-black/5 shadow-[0px_2px_6px_rgba(0,0,0,0.06)]"
+                              className="w-full aspect-video rounded-2xl object-cover ring ring-black/5 shadow-[0px_2px_6px_rgba(0,0,0,0.06)]"
                             />
                           </div>
 
@@ -147,8 +142,6 @@ export function Widget() {
                             ))}
                           </div>
                         </div>
-
-
                       </div>
                     </button>
                   </div>
@@ -192,16 +185,28 @@ export function Widget() {
                     })()}
                   </Markdown>
                 </div>
-
-                <Button
+                <div className="mt-3 flex gap-2">
+                  <Button
+                  className="flex-1"
                   variant="soft"
                   color="secondary"
                   onClick={() => window.openai?.sendFollowUpMessage?.({ prompt: `Compare "${selected.title}" to the other options in terms of ingredients, affordability, and complexity.` })}
                   disabled={!window.openai?.sendFollowUpMessage}
-                  block
+                  
                 >
                   Ask ChatGPT to compare
                 </Button>
+                <Button
+                  className="flex-1"
+                  variant="soft"
+                  color="info"
+                  onClick={() => {}}   
+                    
+                >
+                  Learn more
+                </Button>
+               </div>    
+
               </div>
             )}
           </div>

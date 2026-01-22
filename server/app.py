@@ -44,7 +44,8 @@ def build_widget_html() -> str:
 mcp = FastMCP(
   name="RecipeGem",
   instructions="""
-This server powers a demo ChatGPT app widget. Use explore_recipe to browse recipe data.
+This server powers a demo ChatGPT app widget. 
+Use explore_recipe to browse recipe data.
 All data is local mock JSON; no external calls.
 """.strip(),
 )
@@ -80,7 +81,7 @@ def recipe_widget() -> ResourceResult:
     "openWorldHint": False,
     "destructiveHint": False,
   },
-  # Apps SDK requires tool metadata like outputTemplate and widgetAccessible. :contentReference[oaicite:15]{index=15}
+  
   meta={
     "securitySchemes": [{"type": "noauth"}],
     "openai/outputTemplate": WIDGET_URI,
@@ -91,27 +92,20 @@ def recipe_widget() -> ResourceResult:
 )
 def explore_recipe(
   cuisine: list[str],
-  min_duration: Optional[float] = None,
   sort = "duration",
   selected_id: Optional[str] = None,
 ) -> ToolResult:
   data = load_recipe()
   recipes = data.get("meals", [])
 
-  # Normalize input: replace & with and for flexible matching
+  # Norimalisation of input
   cuisine_norm = [c.strip().lower().replace(" & ", " and ") for c in cuisine]
   print("Cuisine filter:", cuisine)
   print("Normalized cuisine:", cuisine_norm)
   
-  # Check if cuisine is in the recipe's cuisine array, handling & vs and
   filtered = [r for r in recipes if any(c.strip().lower().replace(" & ", " and ") in cuisine_norm for c in r["cuisine"])]
 
-  if min_duration is not None:
-    filtered = [r for r in filtered if float(r.get("duration", 0)) <= float(min_duration)]
-    
-  
-  key = "complexity" if sort == "complexity" else "duration"
-  filtered.sort(key=lambda s: s.get(key, 0), reverse=True)
+  filtered.sort(key=lambda s: s.get("duration", 0), reverse=False)
 
   selected = None
   if selected_id:
@@ -124,10 +118,10 @@ def explore_recipe(
     "cuisine": cuisine,
     "results": filtered,
     "selected": selected,
-    "applied_filters": {"min_duration": min_duration, "sort": sort},
+    "applied_filters": {"sort": sort},
   }
+  
 
-  # Include the Apps SDK meta again at response time (some clients check response meta). :contentReference[oaicite:16]{index=16}
   return ToolResult(
     content=[TextContent(type="text", text=f"Found {len(filtered)} recipes in {', '.join(cuisine)}.")],
     structured_content=structured,
