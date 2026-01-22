@@ -29,9 +29,6 @@ def find_built_asset(suffix: str) -> str:
   return candidates[-1].read_text(encoding="utf-8")
 
 def build_widget_html() -> str:
-  """
-  Apps SDK expects HTML templates served as `text/html+skybridge` that can inline JS/CSS. :contentReference[oaicite:13]{index=13}
-  """
   js = find_built_asset(".js")
   css = find_built_asset(".css")
 
@@ -47,14 +44,11 @@ def build_widget_html() -> str:
 mcp = FastMCP(
   name="RecipeGem",
   instructions="""
-This server powers a demo ChatGPT app widget.
-Use explore_stays to browse recipe data.
+This server powers a demo ChatGPT app widget. Use explore_recipe to browse recipe data.
 All data is local mock JSON; no external calls.
 """.strip(),
 )
 
-# --- UI template resource (ChatGPT loads this when outputTemplate points to it) ---
-# Needs mime_type="text/html+skybridge" :contentReference[oaicite:14]{index=14}
 @mcp.resource(
   uri=WIDGET_URI,
   name="RecipeGem Widget",
@@ -98,7 +92,7 @@ def recipe_widget() -> ResourceResult:
 def explore_recipe(
   cuisine: list[str],
   min_duration: Optional[float] = None,
-  sort: Literal["duration", "complexity"] = "duration",
+  sort = "duration",
   selected_id: Optional[str] = None,
 ) -> ToolResult:
   data = load_recipe()
@@ -106,14 +100,18 @@ def explore_recipe(
 
   # Normalize input: replace & with and for flexible matching
   cuisine_norm = [c.strip().lower().replace(" & ", " and ") for c in cuisine]
+  print("Cuisine filter:", cuisine)
   print("Normalized cuisine:", cuisine_norm)
+  
   # Check if cuisine is in the recipe's cuisine array, handling & vs and
   filtered = [r for r in recipes if any(c.strip().lower().replace(" & ", " and ") in cuisine_norm for c in r["cuisine"])]
+
   if min_duration is not None:
-    filtered = [r for r in filtered if float(r.get("duration", 0)) >= float(min_duration)]
-  reverse = True if sort == "duration" else False
+    filtered = [r for r in filtered if float(r.get("duration", 0)) <= float(min_duration)]
+    
+  
   key = "complexity" if sort == "complexity" else "duration"
-  filtered.sort(key=lambda s: s.get(key, 0), reverse=reverse)
+  filtered.sort(key=lambda s: s.get(key, 0), reverse=True)
 
   selected = None
   if selected_id:
@@ -123,7 +121,7 @@ def explore_recipe(
         break
 
   structured = {
-    "cuisine": ', '.join(cuisine),
+    "cuisine": cuisine,
     "results": filtered,
     "selected": selected,
     "applied_filters": {"min_duration": min_duration, "sort": sort},
@@ -142,3 +140,4 @@ def explore_recipe(
 
 if __name__ == "__main__":
   mcp.run(transport="http", host="127.0.0.1", port=8000)
+

@@ -1,13 +1,13 @@
-import React from "react";
 import { useMemo } from "react";
 import { Badge } from "@openai/apps-sdk-ui/components/Badge";
 import { Button } from "@openai/apps-sdk-ui/components/Button";
 import { Clock } from "@openai/apps-sdk-ui/components/Icon";
 import { Markdown } from "@openai/apps-sdk-ui/components/Markdown"
 import { useToolInput, useToolOutput, useWidgetState } from "./openai";
+import { Image } from "@openai/apps-sdk-ui/components/Image";
 import useEmblaCarousel from 'embla-carousel-react';
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import RecipeCard from "./RecipeCard";
+// import { ArrowLeft, ArrowRight } from "lucide-react";
+// import RecipeCard from "./RecipeCard";
 
 export type Recipe = {
   id: string;
@@ -23,7 +23,7 @@ export type Recipe = {
 }
 
 type ToolOutput = {
-  cuisine: string;
+  cuisine: string[];
   results: Recipe[];
   selected?: Recipe | null;
   applied_filters: { min_duration?: number; sort?: "duration" | "complexity" };
@@ -37,30 +37,6 @@ type WidgetState = {
   selected_id?: string | null;
 };
 
-const [emblaRef, emblaApi] = useEmblaCarousel({
-  align: "center",
-  loop: false,
-  containScroll: "trimSnaps",
-  slidesToScroll: "auto",
-  dragFree: false,
-});
-const [canPrev, setCanPrev] = React.useState(false);
-const [canNext, setCanNext] = React.useState(false);
-
-React.useEffect(() => {
-  if (!emblaApi) return;
-  const updateButtons = () => {
-    setCanPrev(emblaApi.canScrollPrev());
-    setCanNext(emblaApi.canScrollNext());
-  };
-  updateButtons();
-  emblaApi.on("select", updateButtons);
-  emblaApi.on("reInit", updateButtons);
-  return () => {
-    emblaApi.off("select", updateButtons);
-    emblaApi.off("reInit", updateButtons);
-  };
-}, [emblaApi]);
 
 export function Widget() {
   const toolInput = useToolInput() ?? {};
@@ -73,6 +49,12 @@ export function Widget() {
     selected_id: null,
   }));
 
+  const [emblaRef] = useEmblaCarousel({
+    align: "center",
+    loop: false,
+    containScroll: "trimSnaps",
+  })
+
 
   const results: Recipe[] = toolOutput.results ?? [];
   const selected: Recipe | null =
@@ -82,20 +64,25 @@ export function Widget() {
   const canCallTool = typeof window.openai?.callTool === "function";
 
   const header = useMemo(() => {
-    const cuisine = toolOutput.cuisine ?? state.cuisine ?? "";
-    return cuisine ? `Recipes in ${cuisine}` : "RecipeGem";
-  }, [toolOutput.cuisine, state.cuisine]);
+    const cuisineArr = toolOutput.cuisine ?? [];
+    return cuisineArr.length ? `Recipes in ${cuisineArr.join(", ")}` : "RecipeGem";
+  }, [toolOutput.cuisine]);
 
 
   async function selectRecipe(id: string) {
-    const cuisine = (toolOutput.cuisine ?? state.cuisine ?? "").trim();
-    const min_duration = state.min_duration;
-    const sort = state.sort;
+    const cuisineList = toolOutput.cuisine ??
+  (state.cuisine ? state.cuisine.split(",").map(s => s.trim()).filter(Boolean) : []);
+
 
     setState({ ...state, selected_id: id });
 
     if (canCallTool) {
-      await window.openai.callTool!("explore_recipe", { cuisine, min_duration, sort, selected_id: id });
+      await window.openai.callTool!("explore_recipe", {
+        cuisine: cuisineList,
+        min_duration: state.min_duration,
+        sort: state.sort,
+        selected_id: id,
+      });
     }
   }
 
@@ -122,37 +109,52 @@ export function Widget() {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-col gap-2">
-            {results.map((recipe) => (
-              <button
-                key={recipe.id}
-                onClick={() => selectRecipe(recipe.id)}
-                className="text-left rounded-2xl border border-subtle bg-default p-3 hover:shadow-sm transition"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="font-medium">{recipe.title}</div>
-                    <div className="text-sm text-secondary">
-                      {recipe.cuisine.join(", ")} • {recipe.affordability} • {recipe.complexity}
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {recipe.dietaryLabels.slice(0, 3).map((b) => (
-                        <Badge key={b} color="info">
-                          {b}
-                        </Badge>
-                      ))}
-                    </div>
+          <div className="mt-3">
+            <div className="overflow-hidden" ref={emblaRef}>
+              <div className="flex touch-pan-y touch-pinch-zoom -ml-3">
+                {results.map((recipe) => (
+                  <div
+                    key={recipe.id}
+                    className="min-w-0 flex-[0_0_85%] sm:flex-[0_0_60%] lg:flex-[0_0_45%] pl-3"
+                  >
+                    <button
+                      onClick={() => selectRecipe(recipe.id)}
+                      className="w-full text-left rounded-2xl border border-subtle bg-default p-3 hover:shadow-sm transition"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="w-full">
+                            <Image
+                              src={recipe.imageUrl}
+                              alt={recipe.title}
+                              className="w-full aspect-square rounded-2xl object-cover ring ring-black/5 shadow-[0px_2px_6px_rgba(0,0,0,0.06)]"
+                            />
+                          </div>
+
+                          <div className="font-medium mt-2 flex items-center justify-between">
+                            {recipe.title}
+                            <Badge color={recipe.duration >= 10 ? "success" : "info"}>
+                              <Clock /> {recipe.duration} mins
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-secondary">
+                            {recipe.cuisine.join(", ")} • {recipe.affordability} • {recipe.complexity}
+                          </div>
+
+                          <div className="mt-2 flex flex-wrap gap-1.5">
+                            {recipe.dietaryLabels.slice(0, 3).map((b) => (
+                              <Badge key={b} color="info">{b}</Badge>
+                            ))}
+                          </div>
+                        </div>
+
+
+                      </div>
+                    </button>
                   </div>
-                  <Badge color={recipe.duration >= 10 ? "success" : "info"}>
-                    <Clock /> {recipe.duration} mins
-                  </Badge>
-                </div>
-              </button>
-
-
-
-            ))}
-
+                ))}
+              </div>
+            </div>
 
             {results.length === 0 && (
               <div className="text-sm text-secondary py-6 text-center">
@@ -162,89 +164,8 @@ export function Widget() {
           </div>
         </div>
 
-        <div className="antialiased relative w-full text-black py-5 bg-white">
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-4 max-sm:mx-5 items-stretch">
-              {results.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
-              ))}
-            </div>
-          </div>
-          {/* Edge gradients */}
-          <div
-            aria-hidden
-            className={
-              "pointer-events-none absolute inset-y-0 left-0 w-3 z-[5] transition-opacity duration-200 " +
-              (canPrev ? "opacity-100" : "opacity-0")
-            }
-          >
-            <div
-              className="h-full w-full border-l border-black/15 bg-gradient-to-r from-black/10 to-transparent"
-              style={{
-                WebkitMaskImage:
-                  "linear-gradient(to bottom, transparent 0%, white 30%, white 70%, transparent 100%)",
-                maskImage:
-                  "linear-gradient(to bottom, transparent 0%, white 30%, white 70%, transparent 100%)",
-              }}
-            />
-          </div>
-          <div
-            aria-hidden
-            className={
-              "pointer-events-none absolute inset-y-0 right-0 w-3 z-[5] transition-opacity duration-200 " +
-              (canNext ? "opacity-100" : "opacity-0")
-            }
-          >
-            <div
-              className="h-full w-full border-r border-black/15 bg-gradient-to-l from-black/10 to-transparent"
-              style={{
-                WebkitMaskImage:
-                  "linear-gradient(to bottom, transparent 0%, white 30%, white 70%, transparent 100%)",
-                maskImage:
-                  "linear-gradient(to bottom, transparent 0%, white 30%, white 70%, transparent 100%)",
-              }}
-            />
-          </div>
-          {canPrev && (
-            <Button
-              aria-label="Previous"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 shadow-lg"
-              color="secondary"
-              size="sm"
-              variant="soft"
-              uniform
-              onClick={() => emblaApi && emblaApi.scrollPrev()}
-              type="button"
-            >
-              <ArrowLeft
-                strokeWidth={1.5}
-                className="h-4.5 w-4.5"
-                aria-hidden="true"
-              />
-            </Button>
-          )}
-          {canNext && (
-            <Button
-              aria-label="Next"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 shadow-lg"
-              color="secondary"
-              size="sm"
-              variant="soft"
-              uniform
-              onClick={() => emblaApi && emblaApi.scrollNext()}
-              type="button"
-            >
-              <ArrowRight
-                strokeWidth={1.5}
-                className="h-4.5 w-4.5"
-                aria-hidden="true"
-              />
-            </Button>
-          )}
-        </div>
-
         <div className="rounded-2xl border border-default bg-surface p-3 shadow-sm">
-          <h3 className="heading-md">Details</h3>
+          <h3 className="heading-lg">Details</h3>
           <div className="mt-3">
             {!selected ? (
               <div className="text-sm text-secondary">
@@ -254,7 +175,7 @@ export function Widget() {
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="font-medium">{selected.title}</div>
+                    <div className="font-large">{selected.title}</div>
                     <div className="text-sm text-secondary">
                       {selected.cuisine.join(", ")} • {selected.affordability} • {selected.complexity}
                     </div>
@@ -267,7 +188,7 @@ export function Widget() {
                     {(() => {
                       const ingredientsList = selected.ingredients.map((item) => `- ${item}`).join("\n");
                       const stepsList = selected.steps.map((step, index) => `${index + 1}. ${step}`).join("\n");
-                      return `### Ingredients\n\n${ingredientsList}\n### Steps\n\n${stepsList}`;
+                      return `#### Ingredients\n\n${ingredientsList}\n#### Steps\n\n${stepsList}`;
                     })()}
                   </Markdown>
                 </div>
