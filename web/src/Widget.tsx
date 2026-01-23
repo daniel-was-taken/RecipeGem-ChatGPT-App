@@ -3,8 +3,8 @@ import { Badge } from "@openai/apps-sdk-ui/components/Badge";
 import { Button } from "@openai/apps-sdk-ui/components/Button";
 import { Clock } from "@openai/apps-sdk-ui/components/Icon";
 import { Markdown } from "@openai/apps-sdk-ui/components/Markdown"
-import { useToolInput, useToolOutput, useWidgetState } from "./openai";
 import { Image } from "@openai/apps-sdk-ui/components/Image";
+import { useToolInput, useToolOutput, useWidgetState } from "./openai";
 import useEmblaCarousel from 'embla-carousel-react';
 
 export type Recipe = {
