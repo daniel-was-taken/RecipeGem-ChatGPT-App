@@ -71,13 +71,13 @@ def recipe_widget() -> ResourceResult:
 @mcp.tool(
   name="explore_recipe",
   description=(
-    "Browse recipes from JSON by cuisine\n"
+    "Browse recipes from JSON by cuisine." 
     "Use this when the user wants to explore recipes by cuisine and see an interactive list."
   ),
   annotations={
     "title": "Explore recipes",
     "readOnlyHint": True,
-    "idempotentHint": True,
+    "idempotentHint": False,
     "openWorldHint": False,
     "destructiveHint": False,
   },
@@ -89,6 +89,7 @@ def recipe_widget() -> ResourceResult:
     "openai/toolInvocation/invoking": "Searching recipes…",
     "openai/toolInvocation/invoked": "Results ready",
   },
+  tags={"catalog", "search"},
 )
 def explore_recipe(
   cuisine: list[str],
@@ -99,15 +100,20 @@ def explore_recipe(
   
   recipes = data.get("meals", [])
 
-  # Norimalisation of input
-  cuisine_norm = [c.strip().lower().replace(" & ", " and ") for c in cuisine]
+  # Normalisation of input
+  cuisine_norm = [c.strip().lower().replace(" & ", " and ") for c in cuisine if c.strip()]
+  
+  if cuisine_norm and all(c in ['any', 'all'] for c in cuisine_norm):
+    cuisine_norm = []
+        
   print("Cuisine filter:", cuisine)
   print("Normalized cuisine:", cuisine_norm)
   
   if cuisine_norm:
     filtered = [
       r for r in recipes if any(
-        c.strip().lower().replace(" & ", " and ") in cuisine_norm for c in r["cuisine"]
+        # c.strip().lower().replace(" & ", " and ") in cuisine_norm for c in r["cuisine"]
+        c_norm in [rc.strip().lower().replace(" & ", " and ") for rc in r["cuisine"]] for c_norm in cuisine_norm
       )
     ]
   else:
